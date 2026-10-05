@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Upload, Sparkles, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -8,37 +8,79 @@ const API_URL = "https://ai-caption-generator-fpkt.onrender.com";
 
 function Home() {
   const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState("");
 
-  // New states
   const [caption, setCaption] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  /* =========================================
+     IMAGE HANDLER
+  ========================================= */
+
   const handleImage = (file) => {
-    if (!file || !file.type.startsWith("image/")) {
+    if (!file) {
+      return;
+    }
+
+    // Check image type
+    if (!file.type || !file.type.startsWith("image/")) {
       setError("Please select a valid image.");
       return;
     }
 
+    // 10MB limit
     if (file.size > 10 * 1024 * 1024) {
       setError("Image size must be less than 10MB.");
       return;
     }
 
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
+    // Remove old preview URL
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
 
-    // Reset previous result
+    const imagePreview = URL.createObjectURL(file);
+
+    setImage(file);
+    setPreview(imagePreview);
+
+    // Reset old result
     setCaption("");
     setError("");
   };
 
+  /* =========================================
+     FILE INPUT
+  ========================================= */
+
   const handleChange = (e) => {
-    handleImage(e.target.files[0]);
+    const file = e.target.files?.[0];
+
+    if (file) {
+      handleImage(file);
+    }
+
+    // Reset input so same image can be selected again
+    e.target.value = "";
   };
 
-  // Generate Caption
+  /* =========================================
+     CLEAN PREVIEW URL
+  ========================================= */
+
+  useEffect(() => {
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
+
+  /* =========================================
+     GENERATE CAPTION
+  ========================================= */
+
   const generateCaption = async () => {
     if (!image) {
       setError("Please upload an image first.");
@@ -76,17 +118,25 @@ function Home() {
     }
   };
 
-  // Change Image
+  /* =========================================
+     CHANGE IMAGE
+  ========================================= */
+
   const changeImage = () => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
+
     setImage(null);
-    setPreview(null);
+    setPreview("");
     setCaption("");
     setError("");
   };
 
   return (
     <div className="app">
-      {/* Animated Background */}
+      {/* ================= BACKGROUND ================= */}
+
       <div className="background">
         <span className="blob blob1"></span>
         <span className="blob blob2"></span>
@@ -95,7 +145,8 @@ function Home() {
         <div className="stars"></div>
       </div>
 
-      {/* Navbar */}
+      {/* ================= NAVBAR ================= */}
+
       <nav className="navbar">
         <Link to="/" className="logo">
           <Sparkles size={20} />
@@ -108,7 +159,8 @@ function Home() {
         </div>
       </nav>
 
-      {/* Hero */}
+      {/* ================= HERO ================= */}
+
       <main className="hero">
         <div className="badge">
           <Sparkles size={15} />
@@ -125,22 +177,36 @@ function Home() {
           media posts.
         </p>
 
-        {/* Upload Box */}
+        {/* ================= UPLOAD BOX ================= */}
+
         <div className="upload-box">
           {preview ? (
+            /* ================= PREVIEW ================= */
+
             <div className="preview-container">
-              <img src={preview} alt="Preview" />
+              <img
+                src={preview}
+                alt="Selected image preview"
+                className="selected-image"
+              />
 
               <div className="preview-info">
                 <ImageIcon size={20} />
-                <span>{image?.name}</span>
+
+                <span title={image?.name}>{image?.name}</span>
               </div>
 
-              <button className="remove-btn" onClick={changeImage}>
+              <button
+                type="button"
+                className="remove-btn"
+                onClick={changeImage}
+              >
                 Change Image
               </button>
             </div>
           ) : (
+            /* ================= UPLOAD ================= */
+
             <>
               <div className="upload-icon">
                 <Upload size={30} />
@@ -150,12 +216,13 @@ function Home() {
 
               <p>or browse from your computer</p>
 
-              <label className="browse-btn">
+              <label htmlFor="image-upload" className="browse-btn">
                 <Upload size={18} />
                 Browse Image
                 <input
+                  id="image-upload"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
                   onChange={handleChange}
                   hidden
                 />
@@ -166,11 +233,14 @@ function Home() {
           )}
         </div>
 
-        {/* Error */}
+        {/* ================= ERROR ================= */}
+
         {error && <p className="caption-error">{error}</p>}
 
-        {/* Generate Button */}
+        {/* ================= GENERATE ================= */}
+
         <button
+          type="button"
           className={`generate-btn ${!image || loading ? "disabled" : ""}`}
           disabled={!image || loading}
           onClick={generateCaption}
@@ -180,17 +250,20 @@ function Home() {
           {loading ? "Generating Caption..." : "Generate Caption"}
         </button>
 
-        {/* Generated Caption */}
+        {/* ================= CAPTION ================= */}
+
         {caption && (
           <div className="caption-result">
             <div className="caption-result-title">
               <Sparkles size={18} />
+
               <span>AI Generated Caption</span>
             </div>
 
             <p>{caption}</p>
 
             <button
+              type="button"
               className="copy-caption-btn"
               onClick={() => navigator.clipboard.writeText(caption)}
             >
