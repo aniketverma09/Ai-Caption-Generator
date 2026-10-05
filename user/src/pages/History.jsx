@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Trash2, Sparkles, Copy, Check } from "lucide-react";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://ai-caption-generator-fpkt.onrender.com";
 
 function History() {
   const [history, setHistory] = useState([]);

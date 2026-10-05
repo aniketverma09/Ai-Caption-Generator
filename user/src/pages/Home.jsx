@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "../index.css";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://ai-caption-generator-fpkt.onrender.com";
 
 function Home() {
   const [image, setImage] = useState(null);
