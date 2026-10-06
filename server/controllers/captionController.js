@@ -21,9 +21,7 @@ const historyPath = path.join(
   "../data/history.json"
 );
 
-// -------------------------
 // Read History
-// -------------------------
 const readHistory = () => {
   try {
     if (!fs.existsSync(historyPath)) {
@@ -41,15 +39,13 @@ const readHistory = () => {
 
     return JSON.parse(data || "[]");
   } catch (error) {
-    console.error("❌ History Read Error:", error);
+    console.error(" History Read Error:", error);
 
     return [];
   }
 };
 
-// -------------------------
 // Save History
-// -------------------------
 const saveHistory = (history) => {
   try {
     fs.writeFileSync(
@@ -57,15 +53,13 @@ const saveHistory = (history) => {
       JSON.stringify(history, null, 2)
     );
   } catch (error) {
-    console.error("❌ History Save Error:", error);
+    console.error(" History Save Error:", error);
 
     throw error;
   }
 };
 
-// -------------------------
 // Generate Caption
-// -------------------------
 const generateCaption = async (req, res) => {
   let uploadedFilePath = null;
 
@@ -81,13 +75,11 @@ const generateCaption = async (req, res) => {
     uploadedFilePath = req.file.path;
 
     console.log(
-      "📸 Image received:",
+      " Image received:",
       req.file.originalname
     );
 
-    // -------------------------
     // Read image
-    // -------------------------
     const imageBuffer = fs.readFileSync(
       uploadedFilePath
     );
@@ -95,11 +87,9 @@ const generateCaption = async (req, res) => {
     const imageBase64 =
       imageBuffer.toString("base64");
 
-    // -------------------------
     // Cloudinary Upload
-    // -------------------------
     console.log(
-      "☁️ Uploading image to Cloudinary..."
+      " Uploading image to Cloudinary..."
     );
 
     const cloudinaryResult =
@@ -112,14 +102,12 @@ const generateCaption = async (req, res) => {
       );
 
     console.log(
-      "✅ Cloudinary Upload Successful"
+      " Cloudinary Upload Successful"
     );
 
-    // -------------------------
     // Gemini Caption
-    // -------------------------
     console.log(
-      "🤖 Generating AI caption with Gemini..."
+      " Generating AI caption with Gemini..."
     );
 
     const prompt = `
@@ -165,12 +153,10 @@ Rules:
     }
 
     console.log(
-      "✅ Caption generated successfully"
+      " Caption generated successfully"
     );
 
-    // -------------------------
     // History Item
-    // -------------------------
     const historyItem = {
       id: Date.now().toString(),
       imageUrl:
@@ -184,20 +170,16 @@ Rules:
         new Date().toISOString(),
     };
 
-    // -------------------------
     // Save History
-    // -------------------------
     const history = readHistory();
 
     history.unshift(historyItem);
 
     saveHistory(history);
 
-    console.log("💾 History saved");
+    console.log(" History saved");
 
-    // -------------------------
     // Delete temporary file
-    // -------------------------
     if (
       uploadedFilePath &&
       fs.existsSync(uploadedFilePath)
@@ -205,9 +187,7 @@ Rules:
       fs.unlinkSync(uploadedFilePath);
     }
 
-    // -------------------------
     // Response
-    // -------------------------
     return res.status(200).json({
       success: true,
       message:
@@ -217,7 +197,7 @@ Rules:
 
   } catch (error) {
     console.error(
-      "❌ Caption Generation Error:",
+      " Caption Generation Error:",
       error
     );
 
@@ -247,9 +227,7 @@ Rules:
   }
 };
 
-// -------------------------
 // Get History
-// -------------------------
 const getHistory = (req, res) => {
   try {
     const history = readHistory();
@@ -262,7 +240,7 @@ const getHistory = (req, res) => {
 
   } catch (error) {
     console.error(
-      "❌ Get History Error:",
+      " Get History Error:",
       error
     );
 
@@ -275,9 +253,7 @@ const getHistory = (req, res) => {
   }
 };
 
-// -------------------------
 // Delete History
-// -------------------------
 const deleteHistory = async (
   req,
   res
@@ -310,7 +286,7 @@ const deleteHistory = async (
     // Delete image from Cloudinary
     if (item.publicId) {
       console.log(
-        "☁️ Deleting image from Cloudinary..."
+        " Deleting image from Cloudinary..."
       );
 
       await cloudinary.uploader.destroy(
@@ -321,7 +297,7 @@ const deleteHistory = async (
       );
 
       console.log(
-        "✅ Cloudinary image deleted"
+        " Cloudinary image deleted"
       );
     }
 
@@ -334,7 +310,7 @@ const deleteHistory = async (
     saveHistory(updatedHistory);
 
     console.log(
-      "🗑️ History deleted"
+      " History deleted"
     );
 
     return res.status(200).json({
@@ -345,7 +321,7 @@ const deleteHistory = async (
 
   } catch (error) {
     console.error(
-      "❌ Delete History Error:",
+      " Delete History Error:",
       error
     );
 

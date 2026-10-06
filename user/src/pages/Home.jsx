@@ -14,10 +14,7 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  /* =========================================
-     IMAGE HANDLER
-  ========================================= */
-
+    //  IMAGE HANDLER
   const handleImage = (file) => {
     if (!file) {
       return;
@@ -50,10 +47,7 @@ function Home() {
     setError("");
   };
 
-  /* =========================================
-     FILE INPUT
-  ========================================= */
-
+    //  FILE INPUT
   const handleChange = (e) => {
     const file = e.target.files?.[0];
 
@@ -65,10 +59,7 @@ function Home() {
     e.target.value = "";
   };
 
-  /* =========================================
-     CLEAN PREVIEW URL
-  ========================================= */
-
+    //  CLEAN PREVIEW URL
   useEffect(() => {
     return () => {
       if (preview) {
@@ -77,10 +68,7 @@ function Home() {
     };
   }, [preview]);
 
-  /* =========================================
-     GENERATE CAPTION
-  ========================================= */
-
+    //  GENERATE CAPTION
   const generateCaption = async () => {
     if (!image) {
       setError("Please upload an image first.");
@@ -118,10 +106,7 @@ function Home() {
     }
   };
 
-  /* =========================================
-     CHANGE IMAGE
-  ========================================= */
-
+    //  CHANGE IMAGE
   const changeImage = () => {
     if (preview) {
       URL.revokeObjectURL(preview);
